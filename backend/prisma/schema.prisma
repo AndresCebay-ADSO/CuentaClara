@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Deudor {
+  id        Int        @id @default(autoincrement())
+  nombre    String
+  cedula    String?    @unique
+  telefono  String?
+  direccion String?
+  createdAt DateTime   @default(now())
+  prestamos Prestamo[]
+}
+
+model Prestamo {
+  id             Int      @id @default(autoincrement())
+  deudorId       Int
+  monto          Float
+  tasaInteres    Float
+  modalidad      String
+  numeroCuotas   Int
+  cuotaMensual   Float
+  totalPagar     Float
+  saldoPendiente Float
+  fechaInicio    DateTime
+  estado         String   @default("activo")
+  createdAt      DateTime @default(now())
+
+  deudor Deudor @relation(fields: [deudorId], references: [id])
+  pagos  Pago[]
+}
+
+model Pago {
+  id         Int      @id @default(autoincrement())
+  prestamoId Int
+  monto      Float
+  fecha      DateTime @default(now())
+  nota       String?
+
+  prestamo Prestamo @relation(fields: [prestamoId], references: [id])
+}
